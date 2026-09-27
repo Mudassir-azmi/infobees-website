@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { FaArrowLeft, FaCheckCircle, FaExternalLinkAlt, FaWhatsapp } from "react-icons/fa";
 import { Link, useParams } from "react-router";
 import DynamicIcon from "../components/DynamicIcon";
@@ -9,7 +8,9 @@ import { useSection, useSiteContentLoaded } from "../context/siteContent";
 import { optimizeImage } from "../lib/cloudinary";
 import { whatsappLink } from "../lib/contact";
 import { resolveIcon } from "../lib/icons";
+import { useSeo } from "../lib/seo";
 import { serviceSlug } from "../lib/slugify";
+import { serviceSchema } from "../lib/structuredData";
 
 const toOfferingCard = (offering, index) => ({
   id: `${index}-${offering.title}`,
@@ -27,9 +28,14 @@ function ServiceDetailPage() {
   const loaded = useSiteContentLoaded();
   const service = services.find((item) => serviceSlug(item) === slug);
 
-  useEffect(() => {
-    if (service) document.title = `${service.title} | Infobees`;
-  }, [service]);
+  useSeo({
+    title: service?.title ?? (loaded ? "Service not found" : undefined),
+    description: service?.description || service?.data?.overview,
+    path: `/services/${slug}`,
+    image: service?.image_url,
+    noindex: loaded && !service,
+    jsonLd: service ? serviceSchema(service) : undefined,
+  });
 
   if (!service) {
     return (

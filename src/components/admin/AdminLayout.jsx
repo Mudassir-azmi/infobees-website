@@ -13,6 +13,7 @@ import beeLogo from "../../assets/images/logo/bee.svg";
 import { clearAdminSession } from "../../lib/adminAuth";
 import { ADMIN_SECTIONS } from "../../lib/adminSections";
 import { fetchEnquiryStats } from "../../lib/enquiries";
+import { useSeo } from "../../lib/seo";
 
 const NAV_GROUPS = [
   {
@@ -117,6 +118,7 @@ function SidebarContent({ admin, onLogout, badges }) {
 
 function AdminLayout({ admin, children }) {
   const navigate = useNavigate();
+  useSeo({ title: "Admin", path: "/admin", noindex: true });
   const { pathname } = useLocation();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [badges, setBadges] = useState({});

@@ -5,12 +5,14 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router";
 import beeLogo from "../../assets/images/logo/bee.svg";
 import { getAdminSession, saveAdminSession } from "../../lib/adminAuth";
 import { apiRequest } from "../../lib/api";
+import { useSeo } from "../../lib/seo";
 
 const inputClass =
   "w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-text-dark placeholder:text-slate-400 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30";
 
 function AdminLogin() {
   const navigate = useNavigate();
+  useSeo({ title: "Admin Login", path: "/admin", noindex: true });
   const location = useLocation();
   const [serverError, setServerError] = useState("");
   const {
