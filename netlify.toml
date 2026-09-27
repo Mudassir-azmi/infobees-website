@@ -1,0 +1,14 @@
+# Netlify build settings (picked up automatically when the repo is connected).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Single-page app: let React Router handle every path
+# (/admin, /services/..., /notices/...) instead of returning 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
