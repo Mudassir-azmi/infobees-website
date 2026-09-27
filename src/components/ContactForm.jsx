@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
-import { inquiryServiceOptions } from "../data/services";
-import { sendInquiry } from "../services/emailService";
+import { useSearchParams } from "react-router";
+import { useSection } from "../context/siteContent";
+import { submitEnquiry } from "../lib/enquiries";
+import { serviceSlug } from "../lib/slugify";
 
 const inputClass =
   "w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-text-dark placeholder:text-slate-400 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/30";
@@ -12,23 +14,47 @@ function ContactForm() {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm();
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
+  const [errorMessage, setErrorMessage] = useState("");
 
+  // Dropdown options come from the services in the admin panel.
+  const services = useSection("services").items;
+  const serviceOptions = [...services.map((s) => s.title), "Other"];
+
+  // "Enquire about this service" links here with ?service=<slug>.
+  const [searchParams] = useSearchParams();
+  const requestedSlug = searchParams.get("service");
+  const requestedService = services.find((s) => serviceSlug(s) === requestedSlug)?.title;
+  useEffect(() => {
+    if (requestedService) setValue("service", requestedService);
+  }, [requestedService, setValue]);
+
+  // Saved in the database; the team reads them in Admin → Enquiries.
   const onSubmit = async (data) => {
     setStatus("sending");
+    setErrorMessage("");
     try {
-      await sendInquiry(data);
+      await submitEnquiry(data);
       setStatus("success");
       reset();
-    } catch {
+    } catch (err) {
+      // Validation / rate-limit messages from the server are shown as-is.
+      setErrorMessage(err.status && err.status < 500 ? err.message : "");
       setStatus("error");
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      {/* Honeypot: hidden from people, bots fill it in and get silently ignored. */}
+      <div className="hidden" aria-hidden="true">
+        <label htmlFor="website">Website</label>
+        <input id="website" type="text" tabIndex={-1} autoComplete="off" {...register("website")} />
+      </div>
+
       <div>
         <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-navy">
           Full Name *
@@ -97,7 +123,7 @@ function ContactForm() {
           <option value="" disabled>
             Select a service
           </option>
-          {inquiryServiceOptions.map((option) => (
+          {serviceOptions.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
@@ -146,8 +172,8 @@ function ContactForm() {
         <div className="flex items-start gap-2 rounded-lg bg-red-50 p-4 text-sm text-red-800">
           <FaExclamationTriangle className="mt-0.5 shrink-0" aria-hidden="true" />
           <p>
-            Something went wrong while submitting your inquiry. Please try
-            again or contact us directly on WhatsApp/email.
+            {errorMessage ||
+              "Something went wrong while submitting your inquiry. Please try again or contact us directly on WhatsApp/email."}
           </p>
         </div>
       )}

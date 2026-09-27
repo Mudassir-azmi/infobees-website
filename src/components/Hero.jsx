@@ -1,5 +1,6 @@
 import heroGraphic from "../assets/images/hero/hero-graphic.svg";
-import { trustIndicators } from "../data/services";
+import { trustIndicators } from "../data/site";
+import SocialLinks from "./SocialLinks";
 
 function Hero() {
   return (
@@ -36,12 +37,14 @@ function Hero() {
               Book Academic Advisory
             </a>
             <a
-              href="#technology"
+              href="#services"
               className="w-full rounded-full border border-white/30 px-7 py-3.5 text-center text-sm font-semibold text-white transition-colors hover:border-gold hover:text-gold sm:w-auto"
             >
-              Explore IT &amp; Software Solutions
+              Explore Our Services
             </a>
           </div>
+
+          <SocialLinks className="mt-8 flex justify-center lg:justify-start" />
 
           <dl className="mx-auto mt-12 grid max-w-lg grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4 lg:mx-0">
             {trustIndicators.map((item) => (

@@ -1,10 +1,14 @@
 import { FaWhatsapp } from "react-icons/fa";
-import { contactInfo } from "../data/services";
+import { useSection } from "../context/siteContent";
+import { whatsappLink } from "../lib/contact";
 
-function WhatsAppButton({ variant = "floating" }) {
-  const link = `https://wa.me/${contactInfo.whatsappNumber}?text=${encodeURIComponent(
-    "Hello Infobees, I would like to know more about your services."
-  )}`;
+const DEFAULT_MESSAGE = "Hello Infobees, I would like to know more about your services.";
+
+/** Uses the first WhatsApp number from the Contact section; hidden if there is none. */
+function WhatsAppButton({ variant = "floating", message = DEFAULT_MESSAGE }) {
+  const contact = useSection("contact");
+  const link = whatsappLink(contact.items, message);
+  if (!link) return null;
 
   if (variant === "inline") {
     return (
