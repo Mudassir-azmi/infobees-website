@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { FaArrowLeft, FaCalendarAlt, FaExternalLinkAlt, FaThumbtack } from "react-icons/fa";
 import { Link, useParams } from "react-router";
 import Spinner from "../components/Spinner";
-import { formatDate } from "../lib/format";
+import { formatDate, noticeExcerpt } from "../lib/format";
 import { fetchNotice } from "../lib/notices";
+import { useSeo } from "../lib/seo";
+import { noticeSchema } from "../lib/structuredData";
 
 function NoticeDetailPage() {
   const { slug } = useParams();
@@ -16,7 +18,6 @@ function NoticeDetailPage() {
       .then((res) => {
         if (cancelled) return;
         setState({ status: "ready", notice: res.data });
-        document.title = `${res.data.title} | Infobees`;
       })
       .catch((err) => {
         if (!cancelled) setState({ status: err.status === 404 ? "not-found" : "error", error: err.message });
@@ -27,6 +28,16 @@ function NoticeDetailPage() {
   }, [slug]);
 
   const { status, notice } = state;
+
+  useSeo({
+    title: notice?.title ?? (status === "not-found" ? "Notice not found" : "Notices"),
+    description: notice ? noticeExcerpt(notice, 200) : undefined,
+    path: `/notices/${slug}`,
+    image: notice?.image_url,
+    type: notice ? "article" : "website",
+    noindex: status === "not-found",
+    jsonLd: notice ? noticeSchema(notice) : undefined,
+  });
 
   return (
     <>

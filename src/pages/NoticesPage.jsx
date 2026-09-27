@@ -4,6 +4,7 @@ import { useSearchParams } from "react-router";
 import NoticeCard from "../components/notices/NoticeCard";
 import Spinner from "../components/Spinner";
 import { fetchNotices, fetchNoticeTopics } from "../lib/notices";
+import { useSeo } from "../lib/seo";
 
 const PAGE_SIZE = 9;
 
@@ -17,8 +18,14 @@ function NoticesPage() {
   const [topics, setTopics] = useState([]);
   const [result, setResult] = useState({ status: "loading", notices: [], pagination: null });
 
+  useSeo({
+    title: "Notices & Updates",
+    description:
+      "Latest announcements, admission updates, services and news from Infobees.",
+    path: "/notices",
+  });
+
   useEffect(() => {
-    document.title = "Notices | Infobees";
     fetchNoticeTopics()
       .then((res) => setTopics(res.data))
       .catch(() => {});
